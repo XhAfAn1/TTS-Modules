@@ -1,0 +1,61 @@
+{
+  "categories": [
+    {
+      "name": "Quick Responses",
+      "description": "Essential single-word or short responses where sub-second latency is critical",
+      "phrases": [
+        "Yes.",
+        "No.",
+        "Please.",
+        "Thank you very much.",
+        "I agree.",
+        "I do not understand.",
+        "Please wait a moment."
+      ]
+    },
+    {
+      "name": "Urgent & Care Needs",
+      "description": "Immediate physical assistance and urgent requests",
+      "phrases": [
+        "I need some water, please.",
+        "Can you help me adjust my position?",
+        "My neck is uncomfortable.",
+        "Please call the nurse right now.",
+        "I am feeling pain, could you check on me?",
+        "Could you adjust my pillow and blanket?"
+      ]
+    },
+    {
+      "name": "Comfort & Environment",
+      "description": "Wheelchair, room temperature, and environmental controls",
+      "phrases": [
+        "Could you tilt my wheelchair back slightly?",
+        "It is too warm in here, can we turn on the fan?",
+        "Please lower the blinds, the sunlight is in my eyes.",
+        "Can you turn the television volume down?"
+      ]
+    },
+    {
+      "name": "Social & Conversation",
+      "description": "Longer, expressive conversational sentences for natural interaction",
+      "phrases": [
+        "Good morning! It is really nice to see you today.",
+        "How was your day at work? Tell me everything.",
+        "I really enjoyed that story you shared earlier.",
+        "Can we put on some relaxing music while we talk?",
+        "Thank you for being so patient with me."
+      ]
+    },
+    {
+      "name": "Prosody & Expressiveness Benchmark",
+      "description": "Sentences testing intonation, questions, exclamation, and paralinguistic tags",
+      "phrases": [
+        "Are you really sure about that? That sounds unbelievable!",
+        "Well, that was quite a surprise! [laugh] I did not expect that at all.",
+        "The quick brown fox jumps over the lazy dog.",
+        "In life, what matters most is the connections we nurture and the voices we share."
+      ]
+    }
+  ]
+}
+

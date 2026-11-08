@@ -1,1 +1,51 @@
-/XTTS v2/Backend Server/venv/Lib/site-packages
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Model Weights, Pretrained Checkpoints & Cloned Submodules
+models/*
+!models/.gitkeep
+pretrained_models/
+*.onnx
+*.onnx.json
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.zip
+*.tar.gz
+
+# Generated Audio Outputs & Reports
+outputs/*
+!outputs/.gitkeep
+*.wav
+*.mp3
+*.m4a
+!data/samples/*.wav
+!data/samples/*.mp3
+!data/samples/*.m4a
+
+# Logs & Temporary Files
+*.log
+*.tmp
+temp/
+
+# IDE & OS Artifacts
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+

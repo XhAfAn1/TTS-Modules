@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTS Module Comparison</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    :root {
+      --bg-base: #0a0c10;
+      --bg-surface: #11141c;
+      --bg-surface-elevated: #161b26;
+      --bg-inset: #0e1118;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(255, 255, 255, 0.16);
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+    }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .pro-panel {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .pro-panel:hover {
+      border-color: var(--border-active);
+    }
+
+    .pro-card {
+      background-color: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      transition: border-color 0.15s ease;
+    }
+
+    .pro-card:hover {
+      border-color: var(--border-active);
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .badge-fast {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .badge-mid {
+      background-color: rgba(56, 189, 248, 0.1);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .badge-slow {
+      background-color: rgba(148, 163, 184, 0.12);
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    /* Clean dark-mode audio controls */
+    audio {
+      filter: invert(0.88) hue-rotate(180deg);
+      border-radius: 8px;
+      height: 34px;
+      width: 100%;
+    }
+
+    audio::-webkit-media-controls-panel {
+      background-color: #e2e8f0;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0a0c10;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #222938;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #333d52;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-gray-800/80 bg-[#0c0e14]/90 sticky top-0 z-50 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700/80 flex items-center justify-center text-gray-300">
+          <i class="fa-solid fa-sliders text-sm"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm font-semibold tracking-tight text-white">TTS Modules</h1>
+
+          </div>
+          <p class="text-[11px] text-gray-400">Model Benchmarking & Speech Synthesis Testbench</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2.5">
+        <div id="gpuStatusBadge"
+          class="text-[11px] px-2.5 py-1 rounded-md bg-emerald-950/40 text-emerald-400 border border-emerald-800/50 flex items-center gap-1.5 font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <span>RTX 3070 • CUDA Active</span>
+        </div>
+        <button onclick="toggleBenchmarkModal()"
+          class="px-3 py-1 text-[11px] font-medium rounded-md bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700/80 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-chart-column text-gray-400"></i>
+          <span>Benchmark Suite</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-5 space-y-4">
+
+    <!-- Top Input & Presets Panel -->
+    <section class="pro-panel p-5 space-y-4">
+
+      <!-- Prompt Header & Emotion Tags -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-800/70 pb-3">
+        <div>
+          <span class="section-label">Input Formulation</span>
+          <p class="text-xs text-gray-400">Enter a test sentence or choose a preset phrase below.</p>
+        </div>
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="text-[11px] text-gray-400 mr-1">Tags:</span>
+          <button onclick="insertTag('[laugh]')"
+            class="text-[11px] px-2 py-0.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 font-mono transition">[laugh]</button>
+          <button onclick="insertTag('[sigh]')"
+            class="text-[11px] px-2 py-0.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 font-mono transition">[sigh]</button>
+          <button onclick="insertTag('[cough]')"
+            class="text-[11px] px-2 py-0.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 font-mono transition">[cough]</button>
+          <button onclick="insertTag('[chuckle]')"
+            class="text-[11px] px-2 py-0.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 font-mono transition">[chuckle]</button>
+          <button onclick="insertTag('[gasp]')"
+            class="text-[11px] px-2 py-0.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 font-mono transition">[gasp]</button>
+        </div>
+      </div>
+
+      <!-- Textarea -->
+      <div class="relative">
+        <textarea id="textInput" rows="2"
+          class="w-full bg-[#0a0c10] border border-gray-700/80 rounded-xl px-3.5 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 text-sm resize-y transition leading-relaxed"
+          placeholder="Type words to speak (e.g., 'I need some water, please. Can you help me?')">I need some water, please. Can you help me adjust my position?</textarea>
+        <div class="absolute bottom-2.5 right-3 text-[11px] text-gray-400 mono select-none" id="charCount">63 chars
+        </div>
+      </div>
+
+      <!-- Presets Tabs & Buttons -->
+      <div class="space-y-2 pt-1">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <span class="section-label">Preset Phrase Categories</span>
+          <div id="categoryTabs" class="flex gap-1.5 flex-wrap"></div>
+        </div>
+        <div id="presetButtons" class="flex gap-1.5 overflow-x-auto py-1"></div>
+      </div>
+
+      <!-- Model Selection Grid & Voice Cloning Bar -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-3 border-t border-gray-800/80">
+
+        <!-- Engine Checkboxes -->
+        <div class="lg:col-span-8 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="section-label">Comparison Models</span>
+            <div class="space-x-2 text-[11px]">
+              <button onclick="selectAllEngines(true)" class="text-blue-400 hover:text-blue-300">Select All</button>
+              <span class="text-gray-600">•</span>
+              <button onclick="selectAllEngines(false)" class="text-gray-400 hover:text-gray-300">Deselect All</button>
+            </div>
+          </div>
+          <div id="engineBadgesContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <!-- Dynamic checkboxes populated from API -->
+          </div>
+        </div>
+
+        <!-- Voice Cloning Reference Audio -->
+        <div class="lg:col-span-4 bg-[#0a0c10] p-3 rounded-xl border border-gray-800/80 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="section-label flex items-center gap-1.5">
+              <i class="fa-solid fa-microphone text-blue-400"></i> Voice Reference
+            </span>
+            <span class="text-[10px] text-gray-400 font-mono">Cloning Prompt</span>
+          </div>
+          <select id="sampleSelect"
+            class="w-full text-xs bg-[#11141c] border border-gray-700 text-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-blue-500">
+            <option value="">Default Reference Voice</option>
+          </select>
+          <div class="flex items-center gap-2">
+            <input type="file" id="sampleUploadInput" accept=".wav,.mp3,.m4a,.ogg,.flac" class="hidden"
+              onchange="uploadAudioPrompt(event)">
+            <button onclick="document.getElementById('sampleUploadInput').click()"
+              class="w-full text-xs py-1.5 px-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg border border-gray-700 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-arrow-up-from-bracket text-gray-400"></i>
+              <span>Upload Reference Audio</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Controller Bar -->
+      <div
+        class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-gray-800/80">
+
+        <!-- Instant AAC Trigger & Gender Selection -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <div class="flex items-center gap-2 bg-[#0e1118] p-1.5 rounded-xl border border-gray-800">
+            <span class="text-xs font-semibold text-gray-300 pl-2 hidden sm:inline flex items-center gap-1.5">
+              <i class="fa-solid fa-bolt text-blue-400"></i> Instant Voice:
+            </span>
+            <select id="instantEngineSelect" onchange="updateInstantVoiceDropdown()"
+              class="text-xs bg-gray-900 border border-gray-700 text-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-blue-500 font-medium">
+              <option value="piper">Piper (26ms • Sub-50ms Offline)</option>
+              <option value="piper_high">Piper High (79ms • High-Fidelity)</option>
+              <option value="matcha_tts">Matcha-TTS (32ms • Flow Matching)</option>
+              <option value="kokoro">Kokoro-82M (200ms • Conversational)</option>
+              <option value="melo_tts">MeloTTS (160ms • Melodic Accents)</option>
+              <option value="edge_tts">Edge-TTS (Azure Neural • Free Unlimited)</option>
+              <option value="google_tts">Google TTS (Neural / Free Unlimited)</option>
+              <option value="tiktok_tts">TikTok TTS (Conversational • Free)</option>
+              <option value="pocket_tts">Pocket TTS (1.2s • CPU Stream)</option>
+              <option value="cosyvoice">CosyVoice (300M Flow Matching)</option>
+              <option value="chatterbox_turbo">Chatterbox Turbo (1.8s • Clone)</option>
+              <option value="chatterbox_nano">Chatterbox Nano (1.4s • Edge)</option>
+              <option value="chatterbox_multilingual">Chatterbox Multilingual (2.0s)</option>
+              <option value="vibevoice_realtime">VibeVoice Realtime (2.5s)</option>
+            </select>
+
+            <!-- Voice Gender Switch -->
+            <select id="voiceGenderSelect" onchange="onGenderChange()"
+              class="text-xs bg-gray-900 border border-gray-700 text-blue-400 font-semibold rounded-lg px-2 py-1.5 focus:outline-none focus:border-blue-500">
+              <option value="female">Female Voice</option>
+              <option value="male">Male Voice</option>
+            </select>
+
+            <!-- Dynamic Available Voice Dropdown -->
+            <select id="instantVoiceSelect"
+              class="text-xs bg-gray-900 border border-gray-700 text-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-blue-500 font-medium max-w-[210px] truncate"
+              title="Specific Voice Profile">
+              <!-- Dynamically populated from active model + gender -->
+            </select>
+
+            <button id="instantSpeakBtn" onclick="speakInstantly()"
+              class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition flex items-center gap-1.5 whitespace-nowrap shadow-sm">
+              <i class="fa-solid fa-volume-high"></i>
+              <span>Speak Instantly</span>
+              <span class="hidden md:inline text-[10px] text-blue-200/80 font-mono">(Ctrl+Enter)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Batch & Play Controls -->
+        <div class="flex items-center gap-2 justify-end">
+          <button id="playAllBtn" onclick="playAllAudiosSequentially()" disabled
+            class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-medium border border-gray-700 transition disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1.5">
+            <i class="fa-solid fa-play text-gray-400"></i>
+            <span>Play Sequence</span>
+          </button>
+          <button id="synthesizeBtn" onclick="runComparison()"
+            class="px-4 py-1.5 rounded-lg bg-gray-100 hover:bg-white text-gray-900 font-semibold text-xs transition flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Compare Selected Models</span>
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Side-by-Side Results Grid -->
+    <section class="space-y-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-400">Synthesis Results</h2>
+          <span id="resultsCount" class="text-[11px] px-2 py-0.5 rounded-md bg-gray-800 text-gray-400 mono">0 models
+            evaluated</span>
+        </div>
+        <div id="quickStatsSummary" class="text-xs text-gray-400 hidden lg:flex items-center gap-3"></div>
+      </div>
+
+      <!-- Results Grid Cards -->
+      <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="pro-panel p-10 text-center space-y-3 border-dashed">
+        <div
+          class="w-12 h-12 mx-auto rounded-xl bg-gray-800/80 flex items-center justify-center text-gray-400 text-lg border border-gray-700">
+          <i class="fa-solid fa-wave-square"></i>
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-xs font-semibold text-gray-200">No Audio Generated Yet</h3>
+          <p class="text-xs text-gray-400 max-w-sm mx-auto">Select target TTS models above and click "Compare Selected
+            Models" or press "Speak Instantly" to test.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Batch Benchmark Modal -->
+  <div id="benchmarkModal"
+    class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div
+      class="bg-[#11141c] border border-gray-700 rounded-xl max-w-3xl w-full p-5 space-y-4 max-h-[85vh] overflow-y-auto shadow-2xl">
+      <div class="flex items-center justify-between border-b border-gray-800 pb-2.5">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-chart-column text-blue-400 text-sm"></i>
+          <h3 class="text-sm font-semibold text-white">Automated Batch Benchmark Suite</h3>
+        </div>
+        <button onclick="toggleBenchmarkModal()" class="text-gray-400 hover:text-white text-sm"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label class="section-label block mb-1">Evaluation Category</label>
+          <select id="benchmarkCategorySelect"
+            class="w-full text-xs bg-gray-900 border border-gray-700 text-gray-200 rounded-lg p-2 focus:outline-none focus:border-blue-500">
+            <option value="ALL">All Categories Combined</option>
+          </select>
+        </div>
+        <div class="md:col-span-2 flex items-end">
+          <button id="runBenchmarkBtn" onclick="runBenchmarkCategory()"
+            class="w-full py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-lg transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-play text-xs"></i>
+            <span>Run Benchmark Evaluation</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div id="benchmarkChartWrapper" class="hidden bg-[#0a0c10] p-3 rounded-lg border border-gray-800">
+        <canvas id="benchmarkChart" height="130"></canvas>
+      </div>
+
+      <!-- Results Table -->
+      <div id="benchmarkTableWrapper" class="hidden overflow-x-auto">
+        <table class="w-full text-left text-xs text-gray-300">
+          <thead class="bg-gray-800/60 uppercase font-medium text-[10px] text-gray-400">
+            <tr>
+              <th class="p-2.5">Engine</th>
+              <th class="p-2.5">Size</th>
+              <th class="p-2.5">Avg Latency</th>
+              <th class="p-2.5">Avg RTF</th>
+              <th class="p-2.5">Audio Duration</th>
+              <th class="p-2.5">Real-Time Tier</th>
+            </tr>
+          </thead>
+          <tbody id="benchmarkTableBody" class="divide-y divide-gray-800/80 font-mono text-[11px]"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+
+
+  <!-- Toast Notification -->
+  <div id="toastNotification"
+    class="fixed bottom-5 right-5 z-50 transform translate-y-16 opacity-0 transition-all duration-200 pointer-events-none bg-[#11141c] border border-gray-700 text-gray-200 text-xs px-3.5 py-2.5 rounded-lg shadow-xl flex items-center gap-2">
+    <i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>
+    <span id="toastMessage" class="font-medium">Ready</span>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    let allEngines = [];
+    let allPresets = [];
+    let currentResults = [];
+    let benchmarkChartInstance = null;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      await loadEngines();
+      await loadPresets();
+      await loadSamples();
+      setupCharCount();
+    });
+
+    function setupCharCount() {
+      const input = document.getElementById("textInput");
+      const counter = document.getElementById("charCount");
+      input.addEventListener("input", () => {
+        counter.textContent = `${input.value.length} chars`;
+      });
+      // AAC Instant Keypress Shortcut: Ctrl+Enter triggers instant speech
+      input.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          e.preventDefault();
+          speakInstantly();
+        }
+      });
+    }
+
+    function insertTag(tag) {
+      const input = document.getElementById("textInput");
+      const start = input.selectionStart;
+      const end = input.selectionEnd;
+      const val = input.value;
+      input.value = val.substring(0, start) + " " + tag + " " + val.substring(end);
+      input.focus();
+      document.getElementById("charCount").textContent = `${input.value.length} chars`;
+    }
+
+    async function loadEngines() {
+      try {
+        const res = await fetch("/api/engines");
+        const data = await res.json();
+        allEngines = data.engines;
+        renderEngineBadges();
+        updateInstantVoiceDropdown();
+      } catch (e) {
+        console.error("Failed loading engines:", e);
+      }
+    }
+
+    function renderEngineBadges() {
+      const container = document.getElementById("engineBadgesContainer");
+      container.innerHTML = "";
+
+      allEngines.forEach((eng) => {
+        const label = document.createElement("label");
+        label.className = "cursor-pointer flex items-center gap-2.5 p-2 rounded-lg bg-[#0e1118] border border-gray-800 hover:border-gray-700 transition select-none";
+
+        const isDefaultChecked = ["piper", "piper_high", "matcha_tts", "kokoro", "melo_tts", "edge_tts", "google_tts", "tiktok_tts"].includes(eng.id);
+
+        label.innerHTML = `
+          <input type="checkbox" value="${eng.id}" class="engine-checkbox rounded border-gray-700 text-blue-600 focus:ring-0 bg-gray-800 cursor-pointer" ${isDefaultChecked ? "checked" : ""}>
+          <div class="text-left overflow-hidden">
+            <div class="text-xs font-medium text-gray-200 flex items-center gap-1.5 truncate">
+              <span>${eng.name}</span>
+              <span class="text-[9px] px-1.5 py-0.2 rounded bg-gray-800 text-gray-400 font-mono">${eng.size}</span>
+            </div>
+            <div class="text-[10px] text-gray-400 truncate">${eng.strength ? eng.strength.split(",")[0] : ""}</div>
+          </div>
+        `;
+        container.appendChild(label);
+      });
+    }
+
+    function selectAllEngines(checked) {
+      document.querySelectorAll(".engine-checkbox").forEach(cb => cb.checked = checked);
+    }
+
+    async function loadPresets() {
+      try {
+        const res = await fetch("/api/presets");
+        const data = await res.json();
+        allPresets = data.categories || [];
+        renderCategoryTabs();
+      } catch (e) {
+        console.error("Failed loading presets:", e);
+      }
+    }
+
+    function renderCategoryTabs() {
+      const tabs = document.getElementById("categoryTabs");
+      const benchmarkSelect = document.getElementById("benchmarkCategorySelect");
+      tabs.innerHTML = "";
+
+      allPresets.forEach((cat, idx) => {
+        const btn = document.createElement("button");
+        btn.className = `text-[11px] px-2.5 py-1 rounded-md border transition ${idx === 0 ? "bg-gray-700 text-white border-gray-600 font-medium" : "bg-gray-800/80 text-gray-400 border-gray-700 hover:text-gray-200"}`;
+        btn.textContent = cat.name;
+        btn.onclick = () => selectCategory(idx, btn);
+        tabs.appendChild(btn);
+
+        const opt = document.createElement("option");
+        opt.value = cat.name;
+        opt.textContent = cat.name;
+        benchmarkSelect.appendChild(opt);
+      });
+
+      if (allPresets.length > 0) {
+        renderPresetButtons(allPresets[0].phrases);
+      }
+    }
+
+    function selectCategory(idx, activeBtn) {
+      document.querySelectorAll("#categoryTabs button").forEach(b => {
+        b.className = "text-[11px] px-2.5 py-1 rounded-md border bg-gray-800/80 text-gray-400 border-gray-700 hover:text-gray-200 transition";
+      });
+      activeBtn.className = "text-[11px] px-2.5 py-1 rounded-md border bg-gray-700 text-white border-gray-600 font-medium transition";
+      renderPresetButtons(allPresets[idx].phrases);
+    }
+
+    function renderPresetButtons(phrases) {
+      const container = document.getElementById("presetButtons");
+      container.innerHTML = "";
+      phrases.forEach(phrase => {
+        const pill = document.createElement("button");
+        pill.className = "text-xs px-2.5 py-1 rounded-md bg-[#0a0c10] hover:bg-gray-800 text-gray-300 border border-gray-800 hover:border-gray-700 whitespace-nowrap transition flex-shrink-0";
+        pill.textContent = phrase;
+        pill.onclick = () => {
+          document.getElementById("textInput").value = phrase;
+          document.getElementById("charCount").textContent = `${phrase.length} chars`;
+        };
+        container.appendChild(pill);
+      });
+    }
+
+    async function loadSamples() {
+      try {
+        const res = await fetch("/api/samples");
+        const data = await res.json();
+        const select = document.getElementById("sampleSelect");
+        (data.samples || []).forEach(s => {
+          const opt = document.createElement("option");
+          opt.value = s.path;
+          opt.textContent = s.filename;
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        console.error("Failed loading samples:", e);
+      }
+    }
+
+    async function uploadAudioPrompt(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/api/upload-sample", { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.status === "success") {
+          const select = document.getElementById("sampleSelect");
+          const opt = document.createElement("option");
+          opt.value = data.path;
+          opt.textContent = data.filename;
+          opt.selected = true;
+          select.appendChild(opt);
+          showToast(`Uploaded reference: ${data.filename}`);
+        }
+      } catch (e) {
+        alert("Upload failed: " + e);
+      }
+    }
+
+    function onGenderChange() {
+      const gender = document.getElementById("voiceGenderSelect").value;
+      const sampleSelect = document.getElementById("sampleSelect");
+      if (gender === "male") {
+        for (let i = 0; i < sampleSelect.options.length; i++) {
+          if (sampleSelect.options[i].text.toLowerCase().includes("male") || sampleSelect.options[i].text.toLowerCase().includes("my_voice")) {
+            sampleSelect.selectedIndex = i;
+            break;
+          }
+        }
+        showToast("Switched to Male Voice profile");
+      } else {
+        sampleSelect.selectedIndex = 0;
+        showToast("Switched to Female Voice profile");
+      }
+      updateInstantVoiceDropdown();
+    }
+
+    function updateInstantVoiceDropdown() {
+      const engineSelect = document.getElementById("instantEngineSelect");
+      const genderSelect = document.getElementById("voiceGenderSelect");
+      const voiceSelect = document.getElementById("instantVoiceSelect");
+      if (!engineSelect || !genderSelect || !voiceSelect) return;
+
+      const eid = engineSelect.value;
+      const gender = genderSelect.value;
+      const engine = allEngines.find(e => e.id === eid);
+
+      voiceSelect.innerHTML = "";
+
+      if (!engine || !engine.voices || engine.voices.length === 0) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Default Voice";
+        voiceSelect.appendChild(opt);
+        return;
+      }
+
+      // Filter voices matching selected gender or both
+      const filtered = engine.voices.filter(v => v.gender === gender || v.gender === "both");
+
+      if (filtered.length === 0) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = gender === "male" ? "No Male Voice (Female Only)" : "Default Voice";
+        voiceSelect.appendChild(opt);
+        return;
+      }
+
+      filtered.forEach((v, idx) => {
+        const opt = document.createElement("option");
+        opt.value = v.id;
+        opt.textContent = v.name;
+        if (idx === 0) opt.selected = true;
+        voiceSelect.appendChild(opt);
+      });
+    }
+
+    async function speakInstantly(engineId = null) {
+      const text = document.getElementById("textInput").value.trim();
+      if (!text) {
+        alert("Please enter a sentence to speak.");
+        return;
+      }
+
+      const eid = engineId || document.getElementById("instantEngineSelect").value;
+      const gender = document.getElementById("voiceGenderSelect") ? document.getElementById("voiceGenderSelect").value : "female";
+      const chosenVoice = document.getElementById("instantVoiceSelect") ? document.getElementById("instantVoiceSelect").value : "";
+      const refAudio = document.getElementById("sampleSelect").value;
+      const btn = document.getElementById("instantSpeakBtn");
+      const origHtml = btn ? btn.innerHTML : "";
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Synthesizing...</span>`;
+      }
+
+      try {
+        const t0 = performance.now();
+        const res = await fetch("/api/synthesize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            engine_id: eid,
+            text: text,
+            voice: chosenVoice,
+            gender: gender,
+            speed: 1.0,
+            reference_audio: refAudio
+          })
+        });
+        const result = await res.json();
+        const t1 = performance.now();
+
+        if (result.status === "success" && result.audio_url) {
+          const audio = new Audio(result.audio_url);
+          audio.play().catch(e => console.log("Audio play error:", e));
+          showToast(`Spoke in ${Math.round(t1 - t0)}ms (${result.latency_ms}ms engine)`);
+
+          document.getElementById("emptyState").classList.add("hidden");
+          let existingCard = document.getElementById(`card-${eid}`);
+          if (!existingCard) {
+            existingCard = document.createElement("div");
+            existingCard.id = `card-${eid}`;
+            document.getElementById("resultsGrid").appendChild(existingCard);
+          }
+          renderResultCard(result);
+        } else {
+          alert("Synthesis error: " + (result.error || "Failed"));
+        }
+      } catch (err) {
+        console.error("Instant speak error:", err);
+        alert("Speech error: " + err);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = origHtml;
+        }
+      }
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toastNotification");
+      const m = document.getElementById("toastMessage");
+      if (!t || !m) return;
+      m.textContent = msg;
+      t.classList.remove("translate-y-16", "opacity-0");
+      t.classList.add("translate-y-0", "opacity-100");
+      setTimeout(() => {
+        t.classList.remove("translate-y-0", "opacity-100");
+        t.classList.add("translate-y-16", "opacity-0");
+      }, 3000);
+    }
+
+    async function runComparison() {
+      const text = document.getElementById("textInput").value.trim();
+      if (!text) {
+        alert("Please enter a sentence to synthesize.");
+        return;
+      }
+
+      const selectedEngineIds = Array.from(document.querySelectorAll(".engine-checkbox:checked")).map(cb => cb.value);
+      if (selectedEngineIds.length === 0) {
+        alert("Please select at least one TTS engine.");
+        return;
+      }
+
+      const refAudio = document.getElementById("sampleSelect").value;
+      const gender = document.getElementById("voiceGenderSelect") ? document.getElementById("voiceGenderSelect").value : "female";
+      const btn = document.getElementById("synthesizeBtn");
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Evaluating ${selectedEngineIds.length} Models...</span>`;
+
+      document.getElementById("emptyState").classList.add("hidden");
+      const grid = document.getElementById("resultsGrid");
+      grid.innerHTML = "";
+      currentResults = [];
+
+      selectedEngineIds.forEach(eid => {
+        const engMeta = allEngines.find(e => e.id === eid) || { name: eid, size: "" };
+        const card = document.createElement("div");
+        card.id = `card-${eid}`;
+        card.className = "pro-card p-4 space-y-3";
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-white">${engMeta.name}</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-gray-800 text-gray-400 mono">${engMeta.size}</span>
+          </div>
+          <div class="h-16 bg-[#0a0c10] rounded-lg flex items-center justify-center text-xs text-gray-400 font-mono">
+            <i class="fa-solid fa-circle-notch fa-spin mr-2 text-gray-400"></i> Queued...
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      try {
+        for (let i = 0; i < selectedEngineIds.length; i++) {
+          const eid = selectedEngineIds[i];
+          const placeholder = document.getElementById(`card-${eid}`);
+          if (placeholder) {
+            const statusDiv = placeholder.querySelector(".h-16");
+            if (statusDiv) {
+              statusDiv.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin mr-2 text-blue-400"></i> Synthesizing...`;
+            }
+          }
+
+          try {
+            const res = await fetch("/api/synthesize", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                engine_id: eid,
+                text: text,
+                gender: gender,
+                speed: 1.0,
+                reference_audio: refAudio
+              })
+            });
+            const singleResult = await res.json();
+            currentResults.push(singleResult);
+            renderResultCard(singleResult);
+            document.getElementById("resultsCount").textContent = `${currentResults.length} / ${selectedEngineIds.length} completed`;
+            document.getElementById("playAllBtn").disabled = currentResults.filter(r => r.status === "success").length === 0;
+          } catch (itemErr) {
+            console.error(`Error for ${eid}:`, itemErr);
+            renderResultCard({ engine_id: eid, status: "error", error: String(itemErr) });
+          }
+        }
+      } catch (e) {
+        console.error("Comparison run error:", e);
+        alert("Error during comparison: " + e);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-layer-group"></i> <span>Compare Selected Models</span>`;
+      }
+    }
+
+    function renderResultCard(res) {
+      const card = document.getElementById(`card-${res.engine_id}`);
+      if (!card) return;
+
+      const engMeta = allEngines.find(e => e.id === res.engine_id) || { name: res.engine_name, size: "" };
+
+      if (res.status !== "success") {
+        card.className = "pro-card p-4 space-y-2.5 border-red-500/30";
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-white">${engMeta.name}</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-red-950/60 text-red-400 font-mono border border-red-900/50">Error</span>
+          </div>
+          <div class="p-2.5 bg-red-950/20 rounded-lg text-xs text-red-400 border border-red-900/30 font-mono">
+            ${res.error || "Synthesis failed"}
+          </div>
+          <div class="pt-1.5 border-t border-gray-800 text-right">
+            <button onclick="speakInstantly('${res.engine_id}')" class="text-xs px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 transition">
+              <i class="fa-solid fa-arrow-rotate-right mr-1"></i> Retry
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      let latencyClass = "badge-fast";
+      let latencyTier = "Sub-100ms Action";
+      if (res.latency_ms > 800) {
+        latencyClass = "badge-slow";
+        latencyTier = "Generative / Cloning";
+      } else if (res.latency_ms > 150) {
+        latencyClass = "badge-mid";
+        latencyTier = "Conversational";
+      }
+
+      card.className = "pro-card p-4 space-y-3";
+      card.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-xs font-semibold text-white tracking-tight">
+              ${engMeta.name}
+            </h3>
+            <span class="text-[10px] text-gray-400">${engMeta.strength ? engMeta.strength.split(',')[0] : ''}</span>
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-gray-800 text-gray-300 mono border border-gray-700/80">
+            ${engMeta.size}
+          </span>
+        </div>
+
+        <!-- Metrics Row -->
+        <div class="grid grid-cols-3 gap-1.5 bg-[#0a0c10] p-2.5 rounded-lg border border-gray-800/80 text-center">
+          <div>
+            <div class="text-[9px] uppercase tracking-wider text-gray-400 font-medium">Latency</div>
+            <div class="text-xs font-semibold mono mt-0.5 px-1.5 py-0.5 rounded inline-block ${latencyClass}">
+              ${res.latency_ms} ms
+            </div>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase tracking-wider text-gray-400 font-medium">RTF</div>
+            <div class="text-xs font-medium mono mt-0.5 text-gray-300">
+              ${res.real_time_factor}x
+            </div>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase tracking-wider text-gray-400 font-medium">Audio</div>
+            <div class="text-xs font-medium mono mt-0.5 text-gray-300">
+              ${res.audio_duration_s}s
+            </div>
+          </div>
+        </div>
+
+        <!-- Audio Player -->
+        <div>
+          <audio id="audio-${res.engine_id}" controls class="w-full" src="${res.audio_url}"></audio>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="flex items-center justify-between pt-1 border-t border-gray-800 text-xs">
+          <button onclick="speakInstantly('${res.engine_id}')" class="px-2 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 transition flex items-center gap-1.5 text-[11px]">
+            <i class="fa-solid fa-volume-high text-gray-400"></i>
+            <span>Speak</span>
+          </button>
+          <a href="${res.audio_url}" download class="text-[11px] text-gray-400 hover:text-gray-200 transition flex items-center gap-1">
+            <i class="fa-solid fa-download"></i>
+            <span>WAV</span>
+          </a>
+        </div>
+      `;
+    }
+
+    async function playAllAudiosSequentially() {
+      const valid = currentResults.filter(r => r.status === "success");
+      for (const item of valid) {
+        const audio = document.getElementById(`audio-${item.engine_id}`);
+        if (audio) {
+          await new Promise((resolve) => {
+            audio.currentTime = 0;
+            audio.play();
+            audio.onended = resolve;
+          });
+          await new Promise(r => setTimeout(r, 300));
+        }
+      }
+    }
+
+    function toggleBenchmarkModal() {
+      const modal = document.getElementById("benchmarkModal");
+      modal.classList.toggle("hidden");
+    }
+
+    async function runBenchmarkCategory() {
+      const cat = document.getElementById("benchmarkCategorySelect").value;
+      const selectedEngineIds = Array.from(document.querySelectorAll(".engine-checkbox:checked")).map(cb => cb.value);
+      if (selectedEngineIds.length === 0) {
+        alert("Select at least one engine.");
+        return;
+      }
+
+      const btn = document.getElementById("runBenchmarkBtn");
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Running Evaluation...</span>`;
+
+      try {
+        const res = await fetch(`/api/benchmark-category?category_name=${encodeURIComponent(cat)}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(selectedEngineIds)
+        });
+        const data = await res.json();
+        renderBenchmarkSummary(data.summary);
+      } catch (e) {
+        alert("Benchmark failed: " + e);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-play text-xs"></i> <span>Run Benchmark Evaluation</span>`;
+      }
+    }
+
+    function renderBenchmarkSummary(summary) {
+      document.getElementById("benchmarkChartWrapper").classList.remove("hidden");
+      document.getElementById("benchmarkTableWrapper").classList.remove("hidden");
+
+      const tbody = document.getElementById("benchmarkTableBody");
+      tbody.innerHTML = "";
+
+      const labels = [];
+      const latencyData = [];
+      const rtfData = [];
+
+      for (const [eid, stat] of Object.entries(summary)) {
+        labels.push(stat.engine_name);
+        latencyData.push(stat.avg_latency_ms);
+        rtfData.push(stat.avg_rtf);
+
+        const row = document.createElement("tr");
+        row.className = "hover:bg-gray-800/40";
+        row.innerHTML = `
+          <td class="p-2.5 font-medium text-white">${stat.engine_name}</td>
+          <td class="p-2.5 text-gray-400">${stat.model_size}</td>
+          <td class="p-2.5 text-blue-400 font-semibold">${stat.avg_latency_ms} ms</td>
+          <td class="p-2.5">${stat.avg_rtf}x</td>
+          <td class="p-2.5">${stat.total_audio_duration_s}s</td>
+          <td class="p-2.5">
+            <span class="px-2 py-0.5 rounded text-[10px] ${stat.avg_latency_ms < 300 ? 'badge-fast' : 'badge-mid'}">
+              ${stat.avg_latency_ms < 300 ? 'Action Realtime' : 'Conversational'}
+            </span>
+          </td>
+        `;
+        tbody.appendChild(row);
+      }
+
+      const ctx = document.getElementById("benchmarkChart").getContext("2d");
+      if (benchmarkChartInstance) benchmarkChartInstance.destroy();
+
+      benchmarkChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Avg Latency (ms)',
+              data: latencyData,
+              backgroundColor: 'rgba(59, 130, 246, 0.75)',
+              borderColor: 'rgba(59, 130, 246, 1)',
+              borderWidth: 1,
+              yAxisID: 'y'
+            },
+            {
+              label: 'Real-Time Factor (RTF)',
+              data: rtfData,
+              backgroundColor: 'rgba(16, 185, 129, 0.75)',
+              borderColor: 'rgba(16, 185, 129, 1)',
+              borderWidth: 1,
+              yAxisID: 'y1'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              type: 'linear',
+              position: 'left',
+              title: { display: true, text: 'Latency (ms)', color: '#94a3b8' },
+              grid: { color: 'rgba(255, 255, 255, 0.04)' }
+            },
+            y1: {
+              type: 'linear',
+              position: 'right',
+              title: { display: true, text: 'RTF (< 1.0 = Faster than Real-Time)', color: '#94a3b8' },
+              grid: { drawOnChartArea: false }
+            }
+          },
+          plugins: {
+            legend: { labels: { color: '#e2e8f0', font: { family: 'Outfit', size: 11 } } }
+          }
+        }
+      });
+    }
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,44 @@
+# Core Deep Learning & Audio Processing
+torch>=2.2.0
+torchaudio>=2.2.0
+numpy>=1.25.0,<2.0.0
+scipy>=1.11.0
+soundfile>=0.12.1
+librosa>=0.10.0
+av>=12.0.0
+
+# Runtime Inference Engines
+onnxruntime>=1.17.0
+sherpa-onnx>=1.10.0
+
+# Supported TTS Engines
+piper-tts>=1.2.0
+kokoro-onnx>=0.3.0
+pocket-tts>=0.1.0
+chatterbox-tts>=0.1.0
+edge-tts>=6.1.0
+gTTS>=2.5.0
+google-cloud-texttospeech>=2.30.0
+cosyvoice>=0.0.8
+melotts @ git+https://github.com/myshell-ai/MeloTTS.git
+
+# Flow Matching & Advanced Model Dependencies (Matcha, CosyVoice, MeloTTS)
+hyperpyyaml>=1.2.0
+modelscope>=1.18.0
+pyarrow>=18.0.0,<19.0.0
+pyworld>=0.3.4
+matplotlib>=3.7.0
+x-transformers>=2.11.0
+diffusers>=0.29.0
+conformer>=0.3.2
+hydra-core>=1.3.0
+openai-whisper
+
+# WebUI Application & API Backend
+fastapi>=0.100.0
+uvicorn>=0.23.0
+jinja2>=3.1.0
+python-multipart>=0.0.6
+aiofiles>=23.0.0
+requests>=2.31.0
+tqdm>=4.66.0
